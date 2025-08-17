@@ -1,6 +1,9 @@
 package main
 
 import (
+	"slices"
+
+	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/multichecker"
 	"golang.org/x/tools/go/analysis/passes/appends"
 	"golang.org/x/tools/go/analysis/passes/asmdecl"
@@ -53,10 +56,15 @@ import (
 	"golang.org/x/tools/go/analysis/passes/unusedwrite"
 	"golang.org/x/tools/go/analysis/passes/usesgenerics"
 	"golang.org/x/tools/go/analysis/passes/waitgroup"
+	"honnef.co/go/tools/quickfix"
+	"honnef.co/go/tools/simple"
+	"honnef.co/go/tools/staticcheck"
+	"honnef.co/go/tools/stylecheck"
 )
 
 func main() {
-	multichecker.Main(
+	// анализаторы из пакета passes.
+	var sch = []*analysis.Analyzer{
 		appends.Analyzer,
 		asmdecl.Analyzer,
 		assign.Analyzer,
@@ -108,5 +116,48 @@ func main() {
 		unusedwrite.Analyzer,
 		usesgenerics.Analyzer,
 		waitgroup.Analyzer,
+	}
+
+	// анализаторы staticcheck SA*
+	for _, v := range staticcheck.Analyzers {
+		sch = append(sch, v.Analyzer)
+	}
+
+	// simple.
+	var smch = []string{
+		"S1002",
+		"S1003",
+	}
+	for _, v := range simple.Analyzers {
+		if slices.Contains(smch, v.Analyzer.Name) {
+			sch = append(sch, v.Analyzer)
+		}
+	}
+
+	// stylecheck.
+	var stch = []string{
+		"ST1001",
+		"ST1005",
+		"ST1006",
+	}
+	for _, v := range stylecheck.Analyzers {
+		if slices.Contains(stch, v.Analyzer.Name) {
+			sch = append(sch, v.Analyzer)
+		}
+	}
+
+	// quickfix.
+	var qch = []string{
+		"QF1004",
+		"QF1006",
+	}
+	for _, v := range quickfix.Analyzers {
+		if slices.Contains(qch, v.Analyzer.Name) {
+			sch = append(sch, v.Analyzer)
+		}
+	}
+
+	multichecker.Main(
+		sch...,
 	)
 }
