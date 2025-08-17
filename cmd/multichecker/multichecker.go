@@ -1,6 +1,9 @@
 package main
 
 import (
+	"github.com/kisielk/errcheck/errcheck"
+	"github.com/ultraware/whitespace"
+	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/multichecker"
 	"golang.org/x/tools/go/analysis/passes/appends"
 	"golang.org/x/tools/go/analysis/passes/asmdecl"
@@ -53,10 +56,19 @@ import (
 	"golang.org/x/tools/go/analysis/passes/unusedwrite"
 	"golang.org/x/tools/go/analysis/passes/usesgenerics"
 	"golang.org/x/tools/go/analysis/passes/waitgroup"
+	"honnef.co/go/tools/quickfix/qf1004"
+	"honnef.co/go/tools/quickfix/qf1006"
+	"honnef.co/go/tools/simple/s1002"
+	"honnef.co/go/tools/simple/s1003"
+	"honnef.co/go/tools/staticcheck"
+	"honnef.co/go/tools/stylecheck/st1001"
+	"honnef.co/go/tools/stylecheck/st1005"
+	"honnef.co/go/tools/stylecheck/st1006"
 )
 
 func main() {
-	multichecker.Main(
+	var sch = []*analysis.Analyzer{
+		// анализаторы из пакета passes.
 		appends.Analyzer,
 		asmdecl.Analyzer,
 		assign.Analyzer,
@@ -108,5 +120,28 @@ func main() {
 		unusedwrite.Analyzer,
 		usesgenerics.Analyzer,
 		waitgroup.Analyzer,
+		// simple.
+		s1002.Analyzer,
+		s1003.Analyzer,
+		// stylecheck.
+		st1001.Analyzer,
+		st1005.Analyzer,
+		st1006.Analyzer,
+		// quickfix.
+		qf1004.Analyzer,
+		qf1006.Analyzer,
+		// errcheck.
+		errcheck.Analyzer,
+		// whitespace.
+		whitespace.NewAnalyzer(nil),
+	}
+
+	// анализаторы staticcheck SA*
+	for _, v := range staticcheck.Analyzers {
+		sch = append(sch, v.Analyzer)
+	}
+
+	multichecker.Main(
+		sch...,
 	)
 }
