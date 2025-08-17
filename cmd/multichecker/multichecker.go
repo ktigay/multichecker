@@ -1,8 +1,7 @@
 package main
 
 import (
-	"slices"
-
+	"github.com/kisielk/errcheck/errcheck"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/multichecker"
 	"golang.org/x/tools/go/analysis/passes/appends"
@@ -56,15 +55,19 @@ import (
 	"golang.org/x/tools/go/analysis/passes/unusedwrite"
 	"golang.org/x/tools/go/analysis/passes/usesgenerics"
 	"golang.org/x/tools/go/analysis/passes/waitgroup"
-	"honnef.co/go/tools/quickfix"
-	"honnef.co/go/tools/simple"
+	"honnef.co/go/tools/quickfix/qf1004"
+	"honnef.co/go/tools/quickfix/qf1006"
+	"honnef.co/go/tools/simple/s1002"
+	"honnef.co/go/tools/simple/s1003"
 	"honnef.co/go/tools/staticcheck"
-	"honnef.co/go/tools/stylecheck"
+	"honnef.co/go/tools/stylecheck/st1001"
+	"honnef.co/go/tools/stylecheck/st1005"
+	"honnef.co/go/tools/stylecheck/st1006"
 )
 
 func main() {
-	// анализаторы из пакета passes.
 	var sch = []*analysis.Analyzer{
+		// анализаторы из пакета passes.
 		appends.Analyzer,
 		asmdecl.Analyzer,
 		assign.Analyzer,
@@ -116,45 +119,23 @@ func main() {
 		unusedwrite.Analyzer,
 		usesgenerics.Analyzer,
 		waitgroup.Analyzer,
+		// errcheck.
+		errcheck.Analyzer,
+		// simple.
+		s1002.Analyzer,
+		s1003.Analyzer,
+		// stylecheck.
+		st1001.Analyzer,
+		st1005.Analyzer,
+		st1006.Analyzer,
+		// quickfix.
+		qf1004.Analyzer,
+		qf1006.Analyzer,
 	}
 
 	// анализаторы staticcheck SA*
 	for _, v := range staticcheck.Analyzers {
 		sch = append(sch, v.Analyzer)
-	}
-
-	// simple.
-	var smch = []string{
-		"S1002",
-		"S1003",
-	}
-	for _, v := range simple.Analyzers {
-		if slices.Contains(smch, v.Analyzer.Name) {
-			sch = append(sch, v.Analyzer)
-		}
-	}
-
-	// stylecheck.
-	var stch = []string{
-		"ST1001",
-		"ST1005",
-		"ST1006",
-	}
-	for _, v := range stylecheck.Analyzers {
-		if slices.Contains(stch, v.Analyzer.Name) {
-			sch = append(sch, v.Analyzer)
-		}
-	}
-
-	// quickfix.
-	var qch = []string{
-		"QF1004",
-		"QF1006",
-	}
-	for _, v := range quickfix.Analyzers {
-		if slices.Contains(qch, v.Analyzer.Name) {
-			sch = append(sch, v.Analyzer)
-		}
 	}
 
 	multichecker.Main(
