@@ -4,6 +4,7 @@ go 1.24.4
 
 require (
 	github.com/kisielk/errcheck v1.9.0
+	github.com/ultraware/whitespace v0.2.0
 	golang.org/x/tools v0.36.0
 	honnef.co/go/tools v0.6.1
 )

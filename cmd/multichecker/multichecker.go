@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/kisielk/errcheck/errcheck"
+	"github.com/ultraware/whitespace"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/multichecker"
 	"golang.org/x/tools/go/analysis/passes/appends"
@@ -119,8 +120,6 @@ func main() {
 		unusedwrite.Analyzer,
 		usesgenerics.Analyzer,
 		waitgroup.Analyzer,
-		// errcheck.
-		errcheck.Analyzer,
 		// simple.
 		s1002.Analyzer,
 		s1003.Analyzer,
@@ -131,6 +130,10 @@ func main() {
 		// quickfix.
 		qf1004.Analyzer,
 		qf1006.Analyzer,
+		// errcheck.
+		errcheck.Analyzer,
+		// whitespace.
+		whitespace.NewAnalyzer(nil),
 	}
 
 	// анализаторы staticcheck SA*
