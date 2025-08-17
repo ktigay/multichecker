@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/kisielk/errcheck/errcheck"
+	"github.com/ktigay/multichecker/internal/osexit"
 	"github.com/ultraware/whitespace"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/multichecker"
@@ -66,6 +67,7 @@ import (
 	"honnef.co/go/tools/stylecheck/st1006"
 )
 
+// Анализаторы
 func main() {
 	var sch = []*analysis.Analyzer{
 		// анализаторы из пакета passes.
@@ -134,6 +136,8 @@ func main() {
 		errcheck.Analyzer,
 		// whitespace.
 		whitespace.NewAnalyzer(nil),
+		// osexit
+		osexit.Analyzer,
 	}
 
 	// анализаторы staticcheck SA*
